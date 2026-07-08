@@ -2,6 +2,17 @@
 
 Uma API REST simples em Golang para gestão de clientes utilizando boas práticas de arquitetura e persistencia em bancos de dados com Postgres e Docker.
 
+## Endpoints
+/client:
+   GET: retorna todos os usuários
+   POST: cria um novo usuário
+
+/client/{customerId}:
+   GET: retorna um usuário 
+   DELETE: deleta um usuário
+   PUT: altera um usuário existente
+   
+
 ## Stack
 
 - **Linguagem:** Golang
