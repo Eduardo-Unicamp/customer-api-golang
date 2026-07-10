@@ -67,3 +67,12 @@ func NewOrderItem(productID uuid.UUID, price decimal.Decimal, amount int) (*Orde
 	return &orderItem, nil
 
 }
+
+func (o *Order) pay() {
+	o.Status = PAID
+}
+
+func (o *Order) cancelOrder() {
+	o.Status = CANCELED
+
+}

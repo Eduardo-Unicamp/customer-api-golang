@@ -7,9 +7,16 @@ import (
 )
 
 func CustomerRoutes(r *chi.Mux, handler *handler.CustomerHandler) {
-	r.Get("/client", handler.GetCustomers)
-	r.Post("/client", handler.CreateCustomer)
-	r.Put("/client/{customerId}", handler.UpdateCustomer)
-	r.Delete("/client/{customerId}", handler.DeleteCustomer)
+	r.Get("/customer", handler.GetCustomers)
+	r.Post("/customer", handler.CreateCustomer)
+	r.Put("/customer/{customerId}", handler.UpdateCustomer)
+	r.Delete("/customer/{customerId}", handler.DeleteCustomer)
 
+}
+
+func ProductRoutes(r *chi.Mux, handler *handler.ProductHandler) {
+	r.Get("/product", handler.GetProducts)
+	r.Post("/product", handler.CreateProduct)
+	r.Put("/product/{customerId}", handler.UpdateProduct)
+	r.Delete("/product/{customerId}", handler.DeleteProduct)
 }
