@@ -39,6 +39,9 @@ func WriteOrderError(w http.ResponseWriter, err error) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	case errors.Is(err, model.ErrInvalidField):
 		http.Error(w, err.Error(), http.StatusBadRequest)
+	case errors.Is(err, model.ErrUnableToCancel) || errors.Is(err, model.ErrUnableToPay):
+		http.Error(w, err.Error(), http.StatusBadRequest)
+
 	default:
 		log.Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)

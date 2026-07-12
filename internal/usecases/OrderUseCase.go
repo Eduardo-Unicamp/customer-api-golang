@@ -99,6 +99,11 @@ func (ou *OrderUseCase) PayOrder(ctx context.Context, r *http.Request) error {
 	if err != nil {
 		return err
 	}
+	//regra de negocio: cancelado ou pago nao pode mudar de status
+	if order.Status != model.PENDING {
+		return model.ErrUnableToPay
+	}
+
 	order.Pay()
 	err = ou.orderRepository.UpdateOrderStatus(ctx, order)
 	return err
@@ -109,6 +114,10 @@ func (ou *OrderUseCase) CancelOrder(ctx context.Context, r *http.Request) error 
 	order, err := ou.orderRepository.GetOrderByID(ctx, orderID)
 	if err != nil {
 		return err
+	}
+	//regra de negocio: cancelado ou pago nao pode mudar de status
+	if order.Status != model.PENDING {
+		return model.ErrUnableToCancel
 	}
 
 	if err := ou.orderRepository.CancelOrder(ctx, order); err != nil {

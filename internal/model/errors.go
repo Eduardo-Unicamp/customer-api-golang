@@ -34,3 +34,7 @@ var ErrOrderNotFound = errors.New("Pedido não encontrado")
 var ErrInsufficientStock = errors.New("Estoque insuficiente")
 
 var ErrInvalidField = errors.New("Value inserted for field is not accepted")
+
+var ErrUnableToCancel = errors.New("Only PENDING orders can be canceled!")
+
+var ErrUnableToPay = errors.New("Only PENDING orders can be canceled!")
