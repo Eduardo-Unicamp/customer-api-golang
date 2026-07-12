@@ -114,26 +114,29 @@ func (pr *ProductRepository) DeleteProduct(ctx context.Context, productId string
 
 }
 
-func (pr *ProductRepository) GetPrices(ctx context.Context, itemDTOs []model.NewOrderItemDTO) (map[string]decimal.Decimal, error) {
+func (pr *ProductRepository) GetProductInfo(ctx context.Context, itemDTOs []model.NewOrderItemDTO) (*model.ProductInfo, error) {
 	var ids []string
-	results := make(map[string]decimal.Decimal)
+	results := model.NewProductInfo()
+
 	for _, itemDTO := range itemDTOs {
 		ids = append(ids, itemDTO.ProductID.String())
 	}
 
-	query := `SELECT id,price FROM products WHERE id=ANY($1)`
+	query := `SELECT id,price,stock FROM products WHERE id=ANY($1)`
 	rows, err := pr.connection.Query(ctx, query, ids)
 	if err != nil {
-		return nil, err
+		return &model.ProductInfo{}, err
 	}
 	var id string
 	var price decimal.Decimal
+	var stock int
 	for rows.Next() {
-		if err := rows.Scan(&id, &price); err != nil {
-			return nil, err
+		if err := rows.Scan(&id, &price, &stock); err != nil {
+			return &model.ProductInfo{}, err
 		}
 
-		results[id] = price
+		results.CurrentPrices[id] = price
+		results.CurrentStock[id] = stock
 
 	}
 	return results, nil

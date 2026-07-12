@@ -9,7 +9,6 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
-	"github.com/shopspring/decimal"
 )
 
 type OrderRepository interface {
@@ -21,7 +20,7 @@ type OrderRepository interface {
 }
 
 type ProductRepositoryForOrder interface {
-	GetPrices(context.Context, []model.NewOrderItemDTO) (map[string]decimal.Decimal, error)
+	GetProductInfo(context.Context, []model.NewOrderItemDTO) (*model.ProductInfo, error)
 }
 
 type OrderUseCase struct {
@@ -40,9 +39,9 @@ func (ou *OrderUseCase) CreateOrder(ctx context.Context, r *http.Request) (*mode
 		return &model.Order{}, err
 	}
 
-	productPrices, err := ou.pr.GetPrices(ctx, request.Items)
+	productInfo, err := ou.pr.GetProductInfo(ctx, request.Items)
 
-	newOrder, err := model.NewOrder(request.CustomerID, request.Items, productPrices)
+	newOrder, err := model.NewOrder(request.CustomerID, request.Items, productInfo)
 
 	if err != nil {
 		return newOrder, err
@@ -68,7 +67,11 @@ func (ou *OrderUseCase) GetOrderByID(ctx context.Context, r *http.Request) (*mod
 		return &model.Order{}, err
 	}
 
-	return ou.orderRepository.GetOrderByID(ctx, orderId)
+	order, _ := ou.orderRepository.GetOrderByID(ctx, orderId)
+	if order.Items == nil {
+		return order, model.ErrOrderNotFound
+	}
+	return order, nil
 }
 
 func extractLimitAndOffset(r *http.Request) (int, int) {
