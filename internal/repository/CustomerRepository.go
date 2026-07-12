@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"first-api/internal/model"
 	"fmt"
+	"log"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -113,4 +114,21 @@ func (cr *CustomerRepository) DeleteCustomer(ctx context.Context, customerId str
 	}
 	return nil
 
+}
+
+func (cr *CustomerRepository) GetCustomerByField(ctx context.Context, field string, value string) (*model.Customer, error) {
+	var customer model.Customer
+	//WHITELIST pra proteger contra injection
+	if field != "name" && field != "email" && field != "phone" {
+		return &customer, model.ErrInvalidField
+	}
+
+	query := fmt.Sprintf(`SELECT id,name,email,phone FROM customers WHERE %s = $1`, field)
+	log.Println(query) //debug
+	err := cr.connection.QueryRow(ctx, query, value).Scan(&customer.ID, &customer.Name, &customer.Email, &customer.Phone)
+	if err != nil {
+		return &customer, err
+	}
+
+	return &customer, err
 }

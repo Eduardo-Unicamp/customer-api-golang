@@ -11,6 +11,7 @@ type ErrorResponse struct {
 var ErrNameRequired = errors.New("O nome não pode ser vazio")
 
 var ErrEmailRequired = errors.New("O email não pode ser vazio")
+var ErrEmailTaken = errors.New("O email informado já está sendo utilizado.")
 
 var ErrPhoneRequired = errors.New("O telefone não pode ser vazio")
 
@@ -20,10 +21,16 @@ var ErrEmptyString = errors.New("String vazia")
 
 var ErrInvalidPrice = errors.New("O preço informado não é válido")
 
-var ErrInvalidStockQuantity = errors.New("Quantidade de estoque informada não é válida")
+var ErrInvalidStockQuantity = errors.New("Quantidade informada não é válida")
 
 var ErrEmptyOrder = errors.New("O pedido precisa conter ao menos um item")
 
 var ErrInvalidOrderStatus = errors.New("Status de pedido inválido.")
 
 var ErrProductNotFound = errors.New("Produto não encontrado")
+
+var ErrOrderNotFound = errors.New("Pedido não encontrado")
+
+var ErrInsufficientStock = errors.New("Estoque insuficiente")
+
+var ErrInvalidField = errors.New("Value inserted for field is not accepted")

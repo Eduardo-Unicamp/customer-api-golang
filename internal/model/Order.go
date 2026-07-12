@@ -19,7 +19,9 @@ type OrderItem struct {
 	UnitsOrdered int             `json:"amount"`
 }
 
-func NewOrder(customerID uuid.UUID, itemsDTOs []NewOrderItemDTO, productPrices map[string]decimal.Decimal) (*Order, error) {
+func NewOrder(customerID uuid.UUID, itemsDTOs []NewOrderItemDTO, productInfo *ProductInfo) (*Order, error) {
+	productPrices := productInfo.CurrentPrices
+	productStocks := productInfo.CurrentStock
 	if len(itemsDTOs) < 1 {
 		return &Order{}, ErrEmptyOrder
 	}
@@ -35,6 +37,10 @@ func NewOrder(customerID uuid.UUID, itemsDTOs []NewOrderItemDTO, productPrices m
 	order.Status = PENDING //"o produto deve nascer como PENDING" segundo as intruções do projeto no github
 
 	for _, itemDTO := range itemsDTOs {
+
+		if itemDTO.UnitsOrdered > productStocks[itemDTO.ProductID.String()] { //estoque insuficiente
+			return &Order{}, ErrInsufficientStock
+		}
 		currentPrice := productPrices[itemDTO.ProductID.String()]
 		newItem, err := NewOrderItem(itemDTO.ProductID, currentPrice, itemDTO.UnitsOrdered)
 		if err != nil {

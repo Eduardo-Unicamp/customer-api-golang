@@ -27,11 +27,7 @@ func (c *CustomerHandler) GetCustomers(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	customers, err := c.useCase.GetCustomers(ctx)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-
-		w.WriteHeader(http.StatusInternalServerError)
-
-		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+		WriteOrderError(w, err)
 		return
 	}
 
@@ -44,7 +40,7 @@ func (c *CustomerHandler) CreateCustomer(w http.ResponseWriter, r *http.Request)
 	ctx := r.Context()
 	customer, err := c.useCase.CreateCustomer(ctx, r)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		WriteOrderError(w, err)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -57,7 +53,7 @@ func (c *CustomerHandler) UpdateCustomer(w http.ResponseWriter, r *http.Request)
 	ctx := r.Context()
 	customer, err := c.useCase.UpdateCustomer(ctx, r)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		WriteOrderError(w, err)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -69,7 +65,7 @@ func (c *CustomerHandler) DeleteCustomer(w http.ResponseWriter, r *http.Request)
 	ctx := r.Context()
 	err := c.useCase.DeleteCustomer(ctx, r)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		WriteOrderError(w, err)
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusNoContent)

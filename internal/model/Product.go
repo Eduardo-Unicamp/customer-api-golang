@@ -55,6 +55,18 @@ type UpdateProductRequest struct {
 	Stock int             `json:"stock"`
 }
 
+// to get product info for orders actions
+type ProductInfo struct {
+	CurrentPrices map[string]decimal.Decimal
+	CurrentStock  map[string]int
+}
+
+func NewProductInfo() *ProductInfo {
+	idPrice := make(map[string]decimal.Decimal)
+	idStock := make(map[string]int)
+	return &ProductInfo{CurrentPrices: idPrice, CurrentStock: idStock}
+}
+
 func ValidateString(target string) (string, error) {
 	target = strings.TrimSpace(target)
 	if target == "" {
