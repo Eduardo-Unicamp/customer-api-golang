@@ -41,6 +41,20 @@ func NewProduct(name string, price decimal.Decimal, stock int) (*Product, error)
 
 }
 
+type CreateProductRequest struct {
+	ID    uuid.UUID       `json:"id"`
+	Name  string          `json:"name"`
+	Price decimal.Decimal `json:"price"`
+	Stock int             `json:"stock"`
+}
+
+type UpdateProductRequest struct {
+	ID    uuid.UUID       `json:"id"`
+	Name  string          `json:"name"`
+	Price decimal.Decimal `json:"price"`
+	Stock int             `json:"stock"`
+}
+
 func ValidateString(target string) (string, error) {
 	target = strings.TrimSpace(target)
 	if target == "" {

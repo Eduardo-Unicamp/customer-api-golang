@@ -15,12 +15,12 @@ type Order struct {
 type OrderItem struct {
 	ID           uuid.UUID       `json:"id"`
 	ProductID    uuid.UUID       `json:"product_id"`
-	BoughtPrice  decimal.Decimal `json:"price"`
+	SellingPrice decimal.Decimal `json:"price"`
 	UnitsOrdered int             `json:"amount"`
 }
 
-func NewOrder(customerID uuid.UUID, items *[]OrderItem) (*Order, error) {
-	if len(*items) < 1 {
+func NewOrder(customerID uuid.UUID, itemsDTOs []NewOrderItemDTO, productPrices map[string]decimal.Decimal) (*Order, error) {
+	if len(itemsDTOs) < 1 {
 		return &Order{}, ErrEmptyOrder
 	}
 
@@ -31,9 +31,17 @@ func NewOrder(customerID uuid.UUID, items *[]OrderItem) (*Order, error) {
 	if err != nil {
 		return &order, err
 	}
-
-	order.Items = *items
+	order.CustomerID = customerID
 	order.Status = PENDING //"o produto deve nascer como PENDING" segundo as intruções do projeto no github
+
+	for _, itemDTO := range itemsDTOs {
+		currentPrice := productPrices[itemDTO.ProductID.String()]
+		newItem, err := NewOrderItem(itemDTO.ProductID, currentPrice, itemDTO.UnitsOrdered)
+		if err != nil {
+			return &Order{}, err
+		}
+		order.Items = append(order.Items, *newItem)
+	}
 
 	return &order, nil
 }
@@ -56,7 +64,7 @@ func NewOrderItem(productID uuid.UUID, price decimal.Decimal, amount int) (*Orde
 	if err != nil {
 		return &OrderItem{}, err
 	}
-	orderItem.BoughtPrice = price
+	orderItem.SellingPrice = price
 
 	err = ValidateStockQuantity(amount)
 	if err != nil {
@@ -66,4 +74,23 @@ func NewOrderItem(productID uuid.UUID, price decimal.Decimal, amount int) (*Orde
 
 	return &orderItem, nil
 
+}
+
+func (o *Order) Pay() {
+	o.Status = PAID
+}
+
+func (o *Order) Cancel() {
+	o.Status = CANCELED
+
+}
+
+type NewOrderDTO struct {
+	CustomerID uuid.UUID         `json:"customer_id"`
+	Items      []NewOrderItemDTO `json:"items"`
+}
+
+type NewOrderItemDTO struct {
+	ProductID    uuid.UUID `json:"product_id"`
+	UnitsOrdered int       `json:"amount"`
 }

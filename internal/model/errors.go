@@ -4,6 +4,10 @@ import (
 	"errors"
 )
 
+type ErrorResponse struct {
+	Message string `json:"message"`
+}
+
 var ErrNameRequired = errors.New("O nome não pode ser vazio")
 
 var ErrEmailRequired = errors.New("O email não pode ser vazio")
@@ -21,3 +25,5 @@ var ErrInvalidStockQuantity = errors.New("Quantidade de estoque informada não �
 var ErrEmptyOrder = errors.New("O pedido precisa conter ao menos um item")
 
 var ErrInvalidOrderStatus = errors.New("Status de pedido inválido.")
+
+var ErrProductNotFound = errors.New("Produto não encontrado")
