@@ -4,6 +4,10 @@ import (
 	"errors"
 )
 
+type ErrorResponse struct {
+	Message string `json:"message"`
+}
+
 var ErrNameRequired = errors.New("O nome não pode ser vazio")
 
 var ErrEmailRequired = errors.New("O email não pode ser vazio")

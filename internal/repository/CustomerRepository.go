@@ -20,7 +20,7 @@ func NewCustomerRepository(connection *pgxpool.Pool) *CustomerRepository {
 }
 
 func (pr *CustomerRepository) GetCustomers(ctx context.Context) ([]model.Customer, error) {
-	query := "SELECT id, name,email,phone,created_at,updated_at FROM customer"
+	query := "SELECT id, name,email,phone,created_at,updated_at FROM customers"
 
 	rows, err := pr.connection.Query(ctx, query)
 	if err != nil {
@@ -52,7 +52,7 @@ func (pr *CustomerRepository) GetCustomers(ctx context.Context) ([]model.Custome
 }
 
 func (cr *CustomerRepository) GetCustomerById(ctx context.Context, customerId string) (model.Customer, error) {
-	query := `SELECT * from customer WHERE id=$1`
+	query := `SELECT * from customers WHERE id=$1`
 	var customer model.Customer
 	row := cr.connection.QueryRow(ctx, query, customerId)
 	err := row.Scan(&customer.ID, &customer.Name, &customer.Email, &customer.Phone, &customer.CreatedAt, &customer.UpdatedAt)
@@ -67,7 +67,7 @@ func (cr *CustomerRepository) GetCustomerById(ctx context.Context, customerId st
 }
 
 func (pr *CustomerRepository) CreateCustomer(ctx context.Context, customer *model.Customer) error {
-	query := `INSERT INTO customer (id,name,email,phone)
+	query := `INSERT INTO customers (id,name,email,phone)
 	VALUES ($1, $2, $3, $4)`
 	_, err := pr.connection.Exec(ctx,
 		query,
@@ -91,7 +91,7 @@ func (cr *CustomerRepository) UpdateCustomer(ctx context.Context, customerId str
 		return err
 	}
 
-	query := `UPDATE customer
+	query := `UPDATE customers
 	SET name=$1,
 		email=$2,
 		phone=$3
@@ -106,7 +106,7 @@ func (cr *CustomerRepository) UpdateCustomer(ctx context.Context, customerId str
 }
 
 func (cr *CustomerRepository) DeleteCustomer(ctx context.Context, customerId string) error {
-	query := `DELETE FROM customer WHERE customer.id = $1`
+	query := `DELETE FROM customers WHERE customers.id = $1`
 
 	if _, err := cr.connection.Exec(ctx, query, customerId); err != nil {
 		return err

@@ -37,11 +37,16 @@ func main() {
 	ProductUseCase := usecases.NewProductUseCase(ProductRepository)
 	ProductHandler := handler.NewProductHandler(ProductUseCase)
 
+	OrderRepository := repository.NewOrderRepository(dbPool)
+	OrderUseCase := usecases.NewOrderUseCase(OrderRepository, ProductRepository)
+	OrderHandler := handler.NewOrderHandler(OrderUseCase)
+
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	routes.CustomerRoutes(r, CustomerHandler)
 	routes.ProductRoutes(r, ProductHandler)
+	routes.OrderRoutes(r, OrderHandler)
 
 	log.Println("API rodando em http://localhost:8080")
 	log.Println("GET    /client      -> listar clientes")

@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/shopspring/decimal"
 )
 
 type ProductRepository struct {
@@ -104,11 +105,36 @@ func (pr *ProductRepository) UpdateProduct(ctx context.Context, productId string
 }
 
 func (pr *ProductRepository) DeleteProduct(ctx context.Context, productId string) error {
-	query := `DELETE FROM products WHERE product.id = $1`
+	query := `DELETE FROM products WHERE products.id = $1`
 
 	if _, err := pr.connection.Exec(ctx, query, productId); err != nil {
 		return err
 	}
 	return nil
 
+}
+
+func (pr *ProductRepository) GetPrices(ctx context.Context, itemDTOs []model.NewOrderItemDTO) (map[string]decimal.Decimal, error) {
+	var ids []string
+	results := make(map[string]decimal.Decimal)
+	for _, itemDTO := range itemDTOs {
+		ids = append(ids, itemDTO.ProductID.String())
+	}
+
+	query := `SELECT id,price FROM products WHERE id=ANY($1)`
+	rows, err := pr.connection.Query(ctx, query, ids)
+	if err != nil {
+		return nil, err
+	}
+	var id string
+	var price decimal.Decimal
+	for rows.Next() {
+		if err := rows.Scan(&id, &price); err != nil {
+			return nil, err
+		}
+
+		results[id] = price
+
+	}
+	return results, nil
 }
