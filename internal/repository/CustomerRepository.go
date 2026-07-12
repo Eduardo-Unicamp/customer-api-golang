@@ -53,7 +53,7 @@ func (pr *CustomerRepository) GetCustomers(ctx context.Context) ([]model.Custome
 }
 
 func (cr *CustomerRepository) GetCustomerById(ctx context.Context, customerId string) (model.Customer, error) {
-	query := `SELECT * from customers WHERE id=$1`
+	query := `SELECT id,name,email,phone,created_at,updated_at from customers WHERE id=$1`
 	var customer model.Customer
 	row := cr.connection.QueryRow(ctx, query, customerId)
 	err := row.Scan(&customer.ID, &customer.Name, &customer.Email, &customer.Phone, &customer.CreatedAt, &customer.UpdatedAt)
@@ -68,14 +68,15 @@ func (cr *CustomerRepository) GetCustomerById(ctx context.Context, customerId st
 }
 
 func (pr *CustomerRepository) CreateCustomer(ctx context.Context, customer *model.Customer) error {
-	query := `INSERT INTO customers (id,name,email,phone)
-	VALUES ($1, $2, $3, $4)`
+	query := `INSERT INTO customers (id,name,email,phone,password)
+	VALUES ($1, $2, $3, $4, $5)`
 	_, err := pr.connection.Exec(ctx,
 		query,
 		customer.ID,
 		customer.Name,
 		customer.Email,
 		customer.Phone,
+		customer.Password,
 	)
 
 	if err != nil {
@@ -95,11 +96,12 @@ func (cr *CustomerRepository) UpdateCustomer(ctx context.Context, customerId str
 	query := `UPDATE customers
 	SET name=$1,
 		email=$2,
-		phone=$3
-	WHERE id=$4;
+		phone=$3,
+		password=$4
+	WHERE id=$5;
 	`
 
-	if _, err := cr.connection.Exec(ctx, query, customer.Name, customer.Email, customer.Phone, customerId); err != nil {
+	if _, err := cr.connection.Exec(ctx, query, customer.Name, customer.Email, customer.Phone, customer.Password, customerId); err != nil {
 		return err
 	}
 	return nil

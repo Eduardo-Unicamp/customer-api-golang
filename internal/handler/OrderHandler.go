@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"first-api/internal/model"
@@ -41,7 +42,8 @@ func WriteOrderError(w http.ResponseWriter, err error) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	case errors.Is(err, model.ErrUnableToCancel) || errors.Is(err, model.ErrUnableToPay):
 		http.Error(w, err.Error(), http.StatusBadRequest)
-
+	case errors.Is(err, sql.ErrNoRows):
+		http.Error(w, err.Error(), http.StatusNotFound)
 	default:
 		log.Print(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)

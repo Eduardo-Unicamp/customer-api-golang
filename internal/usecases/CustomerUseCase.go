@@ -4,7 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"first-api/internal/model"
+
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -47,11 +49,11 @@ func (pu *CustomerUseCase) CreateCustomer(ctx context.Context, r *http.Request) 
 	if err == nil { //aqui se deu certo já tem esse email
 		return nil, model.ErrEmailTaken
 	}
-	if err != sql.ErrNoRows { //se erro não é nil(passou do outro if) e nao é NoRows é pq deu algum outro erro aí retorna
+	if !errors.Is(err, sql.ErrNoRows) { //se erro não é nil(passou do outro if) e nao é NoRows é pq deu algum outro erro aí retorna
 		return nil, err
 	}
 
-	customer, err := model.NewCustomer(request.Name, request.Email, request.Phone)
+	customer, err := model.NewCustomer(request.Name, request.Email, request.Phone, request.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +74,7 @@ func (cu *CustomerUseCase) UpdateCustomer(ctx context.Context, r *http.Request) 
 		return &model.Customer{}, err
 	}
 
-	customer, err := model.NewCustomer(request.Name, request.Email, request.Phone)
+	customer, err := model.NewCustomer(request.Name, request.Email, request.Phone, request.Password)
 	if err != nil {
 		return customer, err
 	}
