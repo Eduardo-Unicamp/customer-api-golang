@@ -64,7 +64,7 @@ func (pu *ProductUseCase) CreateProduct(ctx context.Context, r *http.Request) (*
 }
 
 func (pu *ProductUseCase) UpdateProduct(ctx context.Context, r *http.Request) (*model.Product, error) {
-	productId := chi.URLParam(r, "productId")
+	productId := chi.URLParam(r, "product_id")
 	var request model.UpdateProductRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
@@ -83,7 +83,7 @@ func (pu *ProductUseCase) UpdateProduct(ctx context.Context, r *http.Request) (*
 }
 
 func (pu *ProductUseCase) DeleteProduct(ctx context.Context, r *http.Request) error {
-	productId := chi.URLParam(r, "productId")
+	productId := chi.URLParam(r, "product_id")
 	err := pu.repository.DeleteProduct(ctx, productId)
 	if err != nil {
 		return err

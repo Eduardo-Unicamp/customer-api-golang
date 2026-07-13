@@ -10,6 +10,7 @@ import (
 
 type CustomerUseCase interface {
 	GetCustomers(context.Context) ([]model.Customer, error)
+	GetCustomerByID(context.Context, *http.Request) (*model.Customer, error)
 	CreateCustomer(context.Context, *http.Request) (*model.Customer, error)
 	UpdateCustomer(context.Context, *http.Request) (*model.Customer, error)
 	DeleteCustomer(context.Context, *http.Request) error
@@ -34,6 +35,19 @@ func (c *CustomerHandler) GetCustomers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(customers)
+}
+
+func (c *CustomerHandler) GetCustomerByID(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	customer, err := c.useCase.GetCustomerByID(ctx, r)
+	if err != nil {
+		WriteOrderError(w, err)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(customer)
+
 }
 
 func (c *CustomerHandler) CreateCustomer(w http.ResponseWriter, r *http.Request) {

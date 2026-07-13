@@ -39,6 +39,16 @@ func (pu *CustomerUseCase) GetCustomers(ctx context.Context) ([]model.Customer, 
 	return customers, err
 }
 
+func (pu *CustomerUseCase) GetCustomerByID(ctx context.Context, r *http.Request) (*model.Customer, error) {
+	customerID := chi.URLParam(r, "customer_id")
+	customer, err := pu.repository.GetCustomerByField(ctx, "id", customerID)
+	if err != nil {
+		return nil, err
+	}
+
+	return customer, nil
+}
+
 func (pu *CustomerUseCase) CreateCustomer(ctx context.Context, r *http.Request) (*model.Customer, error) {
 	var request model.CreateCustomerRequest
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
@@ -67,7 +77,7 @@ func (pu *CustomerUseCase) CreateCustomer(ctx context.Context, r *http.Request) 
 }
 
 func (cu *CustomerUseCase) UpdateCustomer(ctx context.Context, r *http.Request) (*model.Customer, error) {
-	customerId := chi.URLParam(r, "customerId")
+	customerId := chi.URLParam(r, "customer_id")
 	var request model.UpdateCustomerRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
@@ -86,7 +96,7 @@ func (cu *CustomerUseCase) UpdateCustomer(ctx context.Context, r *http.Request) 
 }
 
 func (pu *CustomerUseCase) DeleteCustomer(ctx context.Context, r *http.Request) error {
-	customerId := chi.URLParam(r, "customerId")
+	customerId := chi.URLParam(r, "customer_id")
 	err := pu.repository.DeleteCustomer(ctx, customerId)
 	if err != nil {
 		return err
