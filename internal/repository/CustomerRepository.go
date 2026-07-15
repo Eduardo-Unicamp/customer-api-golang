@@ -21,7 +21,7 @@ func NewCustomerRepository(connection *pgxpool.Pool) *CustomerRepository {
 }
 
 func (pr *CustomerRepository) GetCustomers(ctx context.Context) ([]model.Customer, error) {
-	query := "SELECT id, name,email,phone,created_at,updated_at FROM customers"
+	query := "SELECT id, name,email,phone,password,created_at,updated_at FROM customers"
 
 	rows, err := pr.connection.Query(ctx, query)
 	if err != nil {
@@ -37,6 +37,7 @@ func (pr *CustomerRepository) GetCustomers(ctx context.Context) ([]model.Custome
 			&customerObj.Name,
 			&customerObj.Email,
 			&customerObj.Phone,
+			&customerObj.Password,
 			&customerObj.CreatedAt,
 			&customerObj.UpdatedAt,
 		)
@@ -53,10 +54,10 @@ func (pr *CustomerRepository) GetCustomers(ctx context.Context) ([]model.Custome
 }
 
 func (cr *CustomerRepository) GetCustomerById(ctx context.Context, customerId string) (*model.Customer, error) {
-	query := `SELECT id,name,email,phone,created_at,updated_at from customers WHERE id=$1`
+	query := `SELECT id,name,email,phone,password,created_at,updated_at from customers WHERE id=$1`
 	var customer model.Customer
 	row := cr.connection.QueryRow(ctx, query, customerId)
-	err := row.Scan(&customer.ID, &customer.Name, &customer.Email, &customer.Phone, &customer.CreatedAt, &customer.UpdatedAt)
+	err := row.Scan(&customer.ID, &customer.Name, &customer.Email, &customer.Phone, &customer.Password, &customer.CreatedAt, &customer.UpdatedAt)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, model.CustomerNotFound
@@ -125,8 +126,8 @@ func (cr *CustomerRepository) GetCustomerByField(ctx context.Context, field stri
 		return &customer, model.ErrInvalidField
 	}
 
-	query := fmt.Sprintf(`SELECT id,name,email,phone FROM customers WHERE %s = $1`, field)
-	err := cr.connection.QueryRow(ctx, query, value).Scan(&customer.ID, &customer.Name, &customer.Email, &customer.Phone)
+	query := fmt.Sprintf(`SELECT id,name,email,phone,password FROM customers WHERE %s = $1`, field)
+	err := cr.connection.QueryRow(ctx, query, value).Scan(&customer.ID, &customer.Name, &customer.Email, &customer.Phone, &customer.Password)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, model.CustomerNotFound

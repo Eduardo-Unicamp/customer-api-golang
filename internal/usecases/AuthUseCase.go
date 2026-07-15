@@ -7,6 +7,7 @@ import (
 	"first-api/internal/auth"
 	"first-api/internal/model" // Importe seu repositório de clientes
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -65,17 +66,29 @@ func (au *AuthUseCase) Register(ctx context.Context, r *http.Request) (*model.To
 
 func (au *AuthUseCase) Login(ctx context.Context, r *http.Request) (*model.TokenResponseDTO, error) {
 	var request model.LoginDTO
-	json.NewDecoder(r.Body).Decode(&request)
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		return nil, model.ErrReadingJSON
 	}
 
 	customer, err := au.CustomerRepo.GetCustomerByField(ctx, "email", request.Email)
+
 	if err != nil {
 		return nil, model.ErrInvalidPassword //sim, é email, mas tem aquela regrinha de nao dizer se é email ou senha que errou
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(customer.Password), []byte(request.Password))
+	//'''''
+	log.Printf("SENHA DO DB (len: %d): '%s'", len(customer.Password), customer.Password)
+	log.Printf("SENHA DO REQ (len: %d): '%s'", len(request.Password), request.Password)
+
+	err = bcrypt.CompareHashAndPassword([]byte(customer.Password), []byte(request.Password))
+
+	if err != nil {
+		// E PRINTE O ERRO REAL DO BCRYPT PARA VER O QUE ELE RECLAMA
+		log.Printf("Erro real do Bcrypt: %v", err)
+		return nil, model.ErrInvalidPassword
+	}
+	//''''''
 	if err != nil {
 		return nil, model.ErrInvalidPassword
 	}
