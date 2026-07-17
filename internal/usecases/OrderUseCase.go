@@ -2,7 +2,9 @@ package usecases
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"first-api/internal/model"
 	"net/http"
 	"strconv"
@@ -64,13 +66,19 @@ func (ou *OrderUseCase) GetOrderByID(ctx context.Context, r *http.Request) (*mod
 	orderId := chi.URLParam(r, "order_id")
 
 	if err := uuid.Validate(orderId); err != nil {
-		return &model.Order{}, err
+		return nil, err
 	}
 
-	order, _ := ou.orderRepository.GetOrderByID(ctx, orderId)
-	if order.Items == nil {
-		return order, model.ErrOrderNotFound
+	order, err := ou.orderRepository.GetOrderByID(ctx, orderId)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, model.ErrOrderNotFound
+		}
 	}
+	if order.Items == nil {
+		return order, model.ErrEmptyOrder
+	}
+
 	return order, nil
 }
 

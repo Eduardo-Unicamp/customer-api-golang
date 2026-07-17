@@ -142,7 +142,7 @@ func (or *OrderRepository) GetOrders(ctx context.Context, limit int, offset int,
 			&newOrder.CustomerID,
 		)
 		if err != nil {
-			return &[]model.Order{}, err
+			return nil, err
 		}
 
 		orders = append(orders, newOrder)
@@ -201,7 +201,7 @@ func (or *OrderRepository) GetOrderByID(ctx context.Context, orderID string) (*m
 			&newItem.ProductID,
 		)
 		if err != nil {
-			return &model.Order{}, err
+			return nil, err
 		}
 
 		newOrder.Items = append(newOrder.Items, newItem)
@@ -211,7 +211,7 @@ func (or *OrderRepository) GetOrderByID(ctx context.Context, orderID string) (*m
 	query = `SELECT * FROM orders WHERE id=$1;`
 	row := tx.QueryRow(ctx, query, orderID)
 	if err := row.Scan(&newOrder.ID, &newOrder.Status, &newOrder.CustomerID); err != nil {
-		return &newOrder, err
+		return nil, err
 	}
 
 	err = tx.Commit(ctx)
